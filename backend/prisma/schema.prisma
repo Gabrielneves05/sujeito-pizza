@@ -12,3 +12,69 @@ datasource db {
   provider = "postgresql"
   url      = env("DATABASE_URL")
 }
+
+// Criar uma migration: "yarn prisma migrate dev"
+model User {
+  id String @id @default(uuid())
+  name String
+  email String @unique
+  password String
+  createdAt DateTime? @default(now())
+  updatedAt DateTime? @default(now())
+
+  @@map("users")
+}
+
+model Category {
+  id String @id @default(uuid())
+  name String
+  createdAt DateTime? @default(now())
+  updatedAt DateTime? @default(now())
+
+  @@map("categories")
+  products Product[]
+}
+
+model Product {
+  id String @id @default(uuid())
+  name String
+  price String
+  description String
+  banner String
+  createdAt DateTime? @default(now())
+  updatedAt DateTime? @default(now())
+
+  category Category @relation(fields: [categoryId], references: [id])
+
+  @@map("products")
+  categoryId String
+  items Item[]
+}
+
+model Order {
+  id String @id @default(uuid())
+  table Int
+  status Boolean @default(false)
+  draft Boolean @default(true)
+  name String?
+  createdAt DateTime? @default(now())
+  updatedAt DateTime? @default(now())
+
+  @@map("orders")
+  items Item[]
+}
+
+model Item {
+  id String @id @default(uuid())
+  amount Int
+
+  createdAt DateTime? @default(now())
+  updatedAt DateTime? @default(now())
+
+  order Order @relation(fields: [orderId], references: [id])
+  product Product @relation(fields: [productId], references: [id])
+
+  @@map("items")
+  orderId String
+  productId String
+}
